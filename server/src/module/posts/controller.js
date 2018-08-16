@@ -27,13 +27,12 @@ module.exports.getOne = function (req, res) {
 module.exports.addOne = function (req, res) {
   var title = req.body.title;
   var description = req.body.description;
+  console.log("body : ", req.body);
 
   var NewPost = new Post({
     title: title,
     description: description
   })
-
-  console.log("inside of addOne = NewPost = " + NewPost);
 
   NewPost.save(function (error) {
     if (error) {
