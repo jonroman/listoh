@@ -1,6 +1,6 @@
 // DB connect to mongoose
 require('../src/data/db');
-const ENV = require('../environment.js');
+const ENV = require('../../setup/environment.js');
 var ActiveDirectory = require('activedirectory2');
 var AD = new ActiveDirectory(ENV.activeDirectoryConfig);
 const cookieSession = require('cookie-session')

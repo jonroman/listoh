@@ -1,5 +1,5 @@
  var mongoose = require('mongoose');
- const ENV = require('../../environment');
+ const ENV = require('../../../setup/environment');
 
  let user= ENV.db.user;
  let pwd = ENV.db.pwd;
@@ -7,11 +7,8 @@
  let db_name = ENV.db.name;
 
  var dburl = 'mongodb://'+user+':'+pwd+'@svutil12:'+port+'/'+db_name;
- //var dburl = 'mongodb://jroman:PinkFrog2019@svutil12:27017/myDSTI-jroman-DB';
- //mongodb://jroman:password123@localhost/test
 
  // var retry = null;
- //mongoose.set('bufferCommands', false);
  mongoose.connect(dburl, {useNewUrlParser: true, bufferCommands: true});
  var db = mongoose.connection;
  db.on('error', console.error.bind(console, 'connection error: '));
