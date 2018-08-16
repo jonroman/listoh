@@ -13,18 +13,18 @@
  var db = mongoose.connection;
  db.on('error', console.error.bind(console, 'connection error: '));
  db.once('open', function(){
-     console.log('The connection is now open');
+    // console.log('The connection is now open');
  })
 
 // CONNECTION EVENTS
   mongoose.connection.on('connected', function() {
-    console.log('Mongoose connected to ' + dburl);
+    //console.log('Mongoose connected to ' + dburl);
   });
   mongoose.connection.on('error', function(err) {
-    console.log('Mongoose connection error: ' + err);
+    console.error('Mongoose connection error: ' + err);
   });
   mongoose.connection.on('disconnected', function() {
-    console.log('Mongoose disconnected');
+    console.error('Mongoose disconnected');
   });
 
  // CAPTURE APP TERMINATION / RESTART EVENTS
