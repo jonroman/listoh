@@ -1,41 +1,60 @@
 // DB connect to mongoose
 require('../src/data/db');
+const ENV = require('../environment.js');
+var ActiveDirectory = require('activedirectory2');
+var AD = new ActiveDirectory(ENV.activeDirectoryConfig);
+const cookieSession = require('cookie-session')
 const express = require('express')
 const bodyParser = require('body-parser')
-const cors = require('cors')
 const morgan = require('morgan')
 const app = express();
-app.use(morgan('combined'));
+
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
-app.use(cors());
-// !IMPORTANT: Routes must be defined before body parser
-// Active Directory Security MiddleWare
 
-/*
- * @brief This is a self invoking function which handles Active Directory Security
- * on ALL application routes. It is telling the express app to very that the AD user
- * is valid and this function is ran before any request is made to the server.
- * TODO: Use SESSIONS to handle the user single sign on and AD permission.
- */
-(function getUserCredentials() {
-  User = require('../src/_activedirectory');
-  if (Object.keys(User).length === 0 && User.constructor === Object) {
-    app.use(function(req, res, next){
-      if (Object.keys(User).length === 0 && User.constructor === Object) {
-        return false;
-      } else {
-        next();
+app.use(cookieSession({name: 'mydsti-session', keys : ['mydsti']}));
+
+app.use(function (req, res, next) {
+  username = req.headers['x-iisnode-auth_user'] || "DSTI/\JonRoman"; // refs: IIS7 web.config
+  username = username.substring(5); // DSTI\JonRoman to JonRoman
+  if (req.session !== undefined && req.session.username === username) {
+    next()
+  } else {
+    /*
+    * @brief findUser() Function Built in ActiveDirectory2 function for finding a user
+    * @param user_name String The user name in the active directory
+    * @param ADUser Object The Active Directory User
+    * @return User Object
+    * NOTE!! ActiveDirectory2 - altered DEFAULTS to return all
+    * NOTE!! Changes made to node_module/activedirectory2/lib/activedirectory.js lines:[68,69]
+    */
+    AD.findUser(username, function(err, ad_user) {
+      if (ad_user === undefined) {
+        console.error("User is not authorized  ERROR: " + err);
+        req.session = null;
+      } else if (ad_user.sAMAccountName === username) {
+        //console.info("AUTHORIZED : ", username);
+        req.session.username = username
+        next()
+      } else if (err) {
+        console.error("User is not authorized  ERROR: " + err);
+        req.session = null;
       }
-    });
+    })
   }
-}());
+});
 
-// Modules
+app.use(function(req, res, next){
+  console.log("testing sessions ", req.session);
+  next()
+});
+
 let posts = require('./module/posts/routes');
 app.use('/posts', posts);
 
-const ENV = require('../../setup/environment');
-app.listen(ENV.port.server, function(){
-    console.log("The Server is now running on PORT " + ENV.port.server);
+let users = require('./module/users/routes');
+app.use('/users', users);
+
+app.listen(process.env.PORT || ENV.port.server, function(){
+    console.log("The Server is now running on PORT ");
 })
