@@ -35,13 +35,14 @@ app.use(function (req, res, next) {
       } else if (ad_user.sAMAccountName === username) {
         //console.info("AUTHORIZED : ", username);
         req.session.username = username
+        // TODO:  Add the user to the mongo table
         next()
       } else if (err) {
         console.error("User is not authorized  ERROR: " + err);
         req.session = null;
       }
     })
-  }
+ }
 });
 
 app.use(function(req, res, next){
