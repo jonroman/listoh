@@ -1,3 +1,10 @@
 # Add any directories, files, or patterns you don't want to be tracked by version control
-/server/node_modules
-/client/node_modules
+
+## BLACKLIST all node modules
+**/node_modules/*
+
+## WHITELIST specified node modules
+!**/node_modules/activedirectory2
+
+## BLACK list
+/setup/environment.js
